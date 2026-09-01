@@ -2,6 +2,15 @@
 
 Unreal Engine 5.8 C++ project. Forked from Epic's GameAnimationSample (UE5 animation showcase).
 
+## Source Control
+
+- Repo: `https://github.com/FreeLundin/MRPG-template` (public)
+- Remote: `origin` (`git push -u origin master`)
+- Branch baseline: `master`; feature branches `feature/*`, `fix/*`, `docs/*`
+- Conventional commits: `feat|fix|docs|refactor|test|chore(<scope>): <desc>`
+- Binary assets via Git LFS (`.gitattributes`); heavy Epic Content excluded via `.gitignore` (lean template policy — see `D:\Lore\MRPG\Git_Branch_Strategy.md`)
+- Governance/knowledge (lore): `D:\Lore\MRPG` (ADRs, governance spec, branch strategy, MCP ops, knowledge base)
+
 ## Project Structure
 
 - `Source/MRPG/` - Single game module (Runtime, Default loading phase)
