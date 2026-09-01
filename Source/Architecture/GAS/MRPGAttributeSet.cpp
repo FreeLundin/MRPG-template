@@ -4,6 +4,19 @@
 #include "GameplayEffectExtension.h"
 #include "GameplayTagContainer.h"
 
+namespace
+{
+	FGameplayTag GetStateDeadTag()
+	{
+		return FGameplayTag::RequestGameplayTag(FName("State.Dead"), /*bErrorIfNotFound*/ false);
+	}
+
+	FGameplayTag GetStateRagdollTag()
+	{
+		return FGameplayTag::RequestGameplayTag(FName("State.Ragdoll"), /*bErrorIfNotFound*/ false);
+	}
+}
+
 UMRPGAttributeSet::UMRPGAttributeSet()
 {
 	// Defaults are intended to be overridden by a CharacterDataAsset / gameplay effect,
@@ -58,8 +71,7 @@ void UMRPGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	}
 	else if (Attribute == GetMaxHealthAttribute())
 	{
-		NewValue = FMath::Max(NewValue, 1.f);
-		// Keep Health <= new Max via pre-change; post-change Finalize handles the clamp below.
+		// Never allow a non-positive maximum.
 		NewValue = FMath::Max(NewValue, 1.f);
 	}
 }
@@ -69,58 +81,95 @@ void UMRPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	Super::PostGameplayEffectExecute(Data);
 
 	const FGameplayEffectContextHandle& EffectContext = Data.EffectSpec.GetContext();
+	const FGameplayAttribute EvaluatedAttribute = Data.EvaluatedData.Attribute;
+	// The modifier was already applied by InternalExecuteMod, so the pre-change
+	// value is the current value minus the delta it applied.
+	const float NewEvaluatedValue = EvaluatedAttribute.GetNumericValue(this);
+	const float OldEvaluatedValue = NewEvaluatedValue - Data.EvaluatedData.Magnitude;
 
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	if (EvaluatedAttribute == GetHealthAttribute())
 	{
-		// Health was modified by a gameplay effect. Normalize to [0, MaxHealth] and,
-		// when it reaches zero, raise a death/ragdoll state via the owning ASC.
+		// Direct Health modification (healing/damage GE). Normalize to
+		// [0, MaxHealth], then run the shared lethal-state handling.
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, FMath::Max(GetMaxHealth(), 0.f)));
-
-		if (GetHealth() <= 0.f)
-		{
-			if (UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent())
-			{
-				ASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Dead"), /*bErrorIfNotFound*/ false));
-				ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Ragdoll"), /*bErrorIfNotFound*/ false));
-			}
-		}
-		else
-		{
-			if (UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent())
-			{
-				ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Dead"), /*bErrorIfNotFound*/ false));
-			}
-		}
+		HandleDamage();
+		BroadcastAttributeChanged(GetHealthAttribute(), OldEvaluatedValue);
 	}
-	else if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	else if (EvaluatedAttribute == GetIncomingDamageAttribute())
 	{
-		// Damage is authored as a meta-attribute (negative delta). Convert to Health loss
-		// after armour mitigation, then reset the meta-attribute.
+		// Damage is authored as a meta-attribute (negative delta). Convert to
+		// Health loss after armour mitigation, attribute the source, then reset
+		// the meta-attribute so it does not accumulate across executions.
 		const float LocalDamageDone = -GetIncomingDamage();
 		if (LocalDamageDone > 0.f)
 		{
+			const float OldHealth = GetHealth();
+
 			// Armor mitigates a flat amount (min 0).
 			const float MitigatedDamage = FMath::Max(0.f, LocalDamageDone - GetArmor());
-			const float NewHealth = FMath::Clamp(GetHealth() - MitigatedDamage, 0.f, FMath::Max(GetMaxHealth(), 0.f));
-			SetHealth(NewHealth);
+			SetHealth(FMath::Clamp(GetHealth() - MitigatedDamage, 0.f, FMath::Max(GetMaxHealth(), 0.f)));
 
-			if (NewHealth <= 0.f)
-			{
-				if (UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent())
-				{
-					ASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Dead"), /*bErrorIfNotFound*/ false));
-					ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Ragdoll"), /*bErrorIfNotFound*/ false));
-				}
-			}
+			LastDamageInstigator = EffectContext.GetInstigator();
+			LastDamageSource = EffectContext.GetEffectCauser();
+			LastDamageTaken = MitigatedDamage;
+
+			HandleDamage();
+			BroadcastAttributeChanged(GetHealthAttribute(), OldHealth);
 		}
 		// Reset the meta-attribute so it does not accumulate across executions.
 		SetIncomingDamage(0.f);
 	}
+	else if (EvaluatedAttribute == GetManaAttribute() ||
+		EvaluatedAttribute == GetStaminaAttribute() ||
+		EvaluatedAttribute == GetMovementSpeedAttribute() ||
+		EvaluatedAttribute == GetMaxManaAttribute() ||
+		EvaluatedAttribute == GetMaxStaminaAttribute() ||
+		EvaluatedAttribute == GetMaxHealthAttribute() ||
+		EvaluatedAttribute == GetArmorAttribute())
+	{
+		// Non-vital attributes that HUD / gameplay still wants to observe.
+		BroadcastAttributeChanged(EvaluatedAttribute, OldEvaluatedValue);
+	}
+}
+
+float UMRPGAttributeSet::GetAttributeValue(const FGameplayAttribute& Attribute) const
+{
+	return Attribute.GetNumericValue(const_cast<UMRPGAttributeSet*>(this));
 }
 
 void UMRPGAttributeSet::HandleDamage()
 {
-	// Reserved hook for subclasses to react to incoming damage processing.
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	const bool bIsDead = GetHealth() <= 0.f;
+	const FGameplayTag DeadTag = GetStateDeadTag();
+	const FGameplayTag RagdollTag = GetStateRagdollTag();
+
+	if (bIsDead)
+	{
+		// Enter the dead state: raise State.Dead (drives death/ragdoll via the
+		// ASC's OnTagUpdated delegate) and clear any transient ragdoll state.
+		ASC->AddLooseGameplayTag(DeadTag);
+		ASC->RemoveLooseGameplayTag(RagdollTag);
+	}
+	else
+	{
+		// Alive: guarantee the dead state is cleared (revive / non-lethal damage).
+		ASC->RemoveLooseGameplayTag(DeadTag);
+	}
+}
+
+void UMRPGAttributeSet::BroadcastAttributeChanged(const FGameplayAttribute& Attribute, float OldValue)
+{
+	const float NewValue = GetAttributeValue(Attribute);
+	if (!FMath::IsNearlyEqual(OldValue, NewValue))
+	{
+		OnAttributeChanged.Broadcast(Attribute, OldValue, NewValue);
+	}
 }
 
 void UMRPGAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)

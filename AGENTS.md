@@ -37,11 +37,12 @@ Engine\Build\BatchFiles\Clean.bat MRPG Win64 DebugGame C:\DEV\MRPG\MRPG.uproject
 
 VS Code tasks are configured in `MRPG.code-workspace` with Debug/DebugGame/Development/Test/Shipping variants for both MRPG and MRPGEditor targets.
 
-## Module Dependencies (MRPG.Build.cs)
+## Module Dependencies
 
-Core, CoreUObject, Engine, InputCore, GameplayAbilities, GameplayTags, GameplayTasks, PhysicsControl, Mover, Chooser, StateTree
+- `MRPG.Build.cs` -> Core, CoreUObject, Engine, InputCore, GameplayAbilities, GameplayTags, GameplayTasks, PhysicsControl, Mover, Chooser, StateTree
+- `Architecture.Build.cs` -> Core, CoreUObject, Engine, GameplayAbilities, GameplayTags, GameplayTasks, InputCore, EnhancedInput (+ optional `SetupGameplayDebuggerSupport` for the MRPG GAS Gameplay Debugger category)
 
-**Warning**: `MRPG.Build.cs` has dead code after line 17 (duplicate `PublicDependencyModuleNames` block outside the constructor). This will cause compile errors if not cleaned up.
+The `Architecture` module root is added to `PublicIncludePaths` so per-system subfolders (`GAS/`, `DataAssets/`, ...) can include each other without `..` relative paths.
 
 ## Key Plugins Enabled
 
@@ -76,6 +77,8 @@ Unreal MCP server configured at `http://127.0.0.1:8000/mcp` (both `.mcp.json` an
 This project is developed and validated by non-programmers (designers, technical artists, SMEs).
 
 **Rule: "If it cannot be observed in Gameplay Debugger, CommonUI, Rewind Debugger, Visual Logger, or a Prototype Map, it is not considered implemented."**
+
+**Guiding principle: Designers stay in control.** Every feature must be authorable, tunable, and verifyable by a designer without opening C++ or writing game logic in code. C++ only provides the thin, stable systems layer (pipeline, debugger, components); all gameplay values, abilities, effects, tags, and flows live in data assets / Blueprints / tables.
 
 - Every feature MUST include a visual verification method demonstrable inside the Unreal Editor *without reviewing code*.
 - Prefer Unreal Engine built-in prototyping/debugging tools whenever possible.

@@ -5,6 +5,13 @@
 #include "AbilitySystemComponent.h"
 #include "MRPGAttributeSet.generated.h"
 
+/**
+ * Broadcast whenever any gameplay-relevant attribute finishes being evaluated
+ * by a gameplay effect. Lets HUDs / hit-react logic observe Health, Mana,
+ * Stamina, etc. changes without polling.
+ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FMRPGAttributeChangedSignature, const FGameplayAttribute&, Attribute, float, OldValue, float, NewValue);
+
 // Helper macro to define gameplay attributes (declaration side)
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
@@ -83,10 +90,37 @@ public:
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, IncomingDamage)
 
+	// --- Damage attribution (populated by the damage pipeline) ---
+	/** Actor that instigated the most recent lethal/non-lethal damage (typically the attacker). */
+	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Combat")
+	TObjectPtr<AActor> LastDamageInstigator;
+
+	/** Actor physically responsible for the damage (may differ from instigator for projectiles/traps). */
+	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Combat")
+	TObjectPtr<AActor> LastDamageSource;
+
+	/** Post-mitigation health loss of the most recent IncomingDamage execution. */
+	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Combat")
+	float LastDamageTaken;
+
+	/** Broadcast after a gameplay effect evaluates an attribute (Health, Mana, Stamina, constants, ...). */
+	UPROPERTY(BlueprintAssignable, Category = "MRPG|Combat")
+	FMRPGAttributeChangedSignature OnAttributeChanged;
+
 protected:
-	// Called when Health is modified post-effect; clamps to [0, MaxHealth] and routes
-	// lethal/ragdoll events by raising State.Dead through the ASC via a tag change hook.
+	/**
+	 * Runs the shared lethal-state handling against the current Health. Called
+	 * by PostGameplayEffectExecute from both the direct Health path and the
+	 * IncomingDamage meta-attribute path so death/revive semantics stay in one
+	 * place. Overridable in subclasses to add game-specific reactions.
+	 */
 	virtual void HandleDamage();
+
+	/** Broadcasts OnAttributeChanged when the given attribute's current value differs from OldValue. */
+	void BroadcastAttributeChanged(const FGameplayAttribute& Attribute, float OldValue);
+
+	/** Reads the current float value of an attribute on this set (const-safe wrapper). */
+	float GetAttributeValue(const FGameplayAttribute& Attribute) const;
 
 protected:
 	UFUNCTION()

@@ -6,6 +6,7 @@
 
 class UMRPGGameplayAbilityBase;
 class UMRPGAttributeSet;
+class UCharacterDataAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMRPGOnStateDeadSignature);
 
@@ -66,6 +67,27 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
 	void GrantStartupAbilities(const TArray<TSubclassOf<UMRPGGameplayAbilityBase>>& StartupAbilities);
+
+	/**
+	 * Fills the owned attribute set from a CharacterDataAsset via an instant
+	 * override gameplay effect, grants its startup abilities, and applies its
+	 * startup effect classes. Lets a character be fully GAS-configured from a
+	 * single data asset instead of hand-wiring Blueprint values.
+	 *
+	 * @param InDataAsset  Data asset describing attribute baselines + GAS setup.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	void InitFromCharacterDataAsset(const UCharacterDataAsset* InDataAsset);
+
+	/**
+	 * Applies a list of gameplay effect classes to the owning actor (instant or
+	 * infinite duration). Used by InitFromCharacterDataAsset for startup effects
+	 * and available for gameplay systems that want to re-apply baseline effects.
+	 *
+	 * @param StartupEffects Effect classes to apply (usually referenced on a data asset).
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	void ApplyStartupEffects(const TArray<TSubclassOf<UMRPGGameplayEffectBase>>& StartupEffects);
 
 	/**
 	 * Grants a single ability and returns its handle for later input binding.

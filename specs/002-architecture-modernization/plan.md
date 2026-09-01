@@ -10,6 +10,8 @@
 
 Modernization of the project's core architecture to leverage Unreal Engine 5.8's latest capabilities. Key highlights include migrating from legacy CharacterMovementComponent to Mover2 with Motion Matching, transitioning AI from Behavior Trees to State Trees, and implementing the Gameplay Ability System (GAS) for all character attributes and abilities. The goal is a high-fidelity, modular, and data-driven architecture that is native-AI driven in its implementation.
 
+**Progress (2026-09-01)**: US-1 (Mover2 + Motion Matching) verified complete. US-3 (GAS) in progress — attribute set + project ASC + data-driven init implemented in C++; closing out the Visual First Gameplay Debugger category and asset authoring. US-2 (State Tree) and Phase 6 polish remain. All deliveries gated by ADR-003 Visual First Development.
+
 ## Technical Context
 
 **Language/Version**: C++ / Unreal Engine 5.8

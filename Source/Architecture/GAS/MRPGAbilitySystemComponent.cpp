@@ -1,7 +1,10 @@
 #include "MRPGAbilitySystemComponent.h"
 #include "MRPGGameplayAbilityBase.h"
+#include "MRPGGameplayEffectBase.h"
 #include "MRPGAttributeSet.h"
+#include "DataAssets/CharacterDataAssets/CharacterDataAsset.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayEffect.h"
 
 UMRPGAbilitySystemComponent::UMRPGAbilitySystemComponent()
 {
@@ -84,6 +87,66 @@ void UMRPGAbilitySystemComponent::GrantStartupAbilities(const TArray<TSubclassOf
 		if (AbilityClass)
 		{
 			GrantAbility(AbilityClass);
+		}
+	}
+}
+
+void UMRPGAbilitySystemComponent::InitFromCharacterDataAsset(const UCharacterDataAsset* InDataAsset)
+{
+	if (!InDataAsset)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[MRPG GAS] InitFromCharacterDataAsset: no data asset provided."));
+		return;
+	}
+
+	// --- Apply attribute baselines through an instant override gameplay effect ---
+	// Override-op modifiers replace the current values; running this through GAS
+	// keeps the pipeline authoritative (PreAttributeChange clamps, replication,
+	// and the attribute set's death semantics all see the new baseline).
+	UGameplayEffect* BaselineEffect = NewObject<UGameplayEffect>(GetTransientPackage(), TEXT("DataAssetBaseline"), RF_Transient);
+	BaselineEffect->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	auto AddBaselineModifier = [BaselineEffect](const FGameplayAttribute& Attribute, float Value)
+	{
+		FGameplayModifierInfo& Modifier = BaselineEffect->Modifiers.AddDefaulted_GetRef();
+		Modifier.Attribute = Attribute;
+		Modifier.ModifierOp = EGameplayModOp::Override;
+		Modifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(Value));
+	};
+
+	AddBaselineModifier(UMRPGAttributeSet::GetMaxHealthAttribute(), InDataAsset->MaxHealth);
+	AddBaselineModifier(UMRPGAttributeSet::GetHealthAttribute(), InDataAsset->MaxHealth);
+	AddBaselineModifier(UMRPGAttributeSet::GetMaxManaAttribute(), InDataAsset->MaxMana);
+	AddBaselineModifier(UMRPGAttributeSet::GetManaAttribute(), InDataAsset->MaxMana);
+	AddBaselineModifier(UMRPGAttributeSet::GetMaxStaminaAttribute(), InDataAsset->MaxStamina);
+	AddBaselineModifier(UMRPGAttributeSet::GetStaminaAttribute(), InDataAsset->MaxStamina);
+	AddBaselineModifier(UMRPGAttributeSet::GetArmorAttribute(), InDataAsset->Armor);
+	AddBaselineModifier(UMRPGAttributeSet::GetDamageAttribute(), InDataAsset->BaseDamage);
+	AddBaselineModifier(UMRPGAttributeSet::GetCharacterLevelAttribute(), static_cast<float>(InDataAsset->StartingLevel));
+
+	FGameplayEffectSpec BaselineSpec(BaselineEffect, MakeEffectContext(), 1.0f);
+	ApplyGameplayEffectSpecToSelf(BaselineSpec);
+
+	// --- Grant the data-driven ability set ---
+	GrantStartupAbilities(InDataAsset->StartupAbilities);
+
+	// --- Apply data-driven startup effects (e.g. passive aura / stat-buffs) ---
+	ApplyStartupEffects(InDataAsset->StartupEffects);
+}
+
+void UMRPGAbilitySystemComponent::ApplyStartupEffects(const TArray<TSubclassOf<UMRPGGameplayEffectBase>>& StartupEffects)
+{
+	for (const TSubclassOf<UMRPGGameplayEffectBase>& EffectClass : StartupEffects)
+	{
+		if (!EffectClass)
+		{
+			continue;
+		}
+
+		if (const UGameplayEffect* DefaultEffect = EffectClass->GetDefaultObject<UGameplayEffect>())
+		{
+			FGameplayEffectSpec Spec(DefaultEffect, MakeEffectContext(), 1.0f);
+			ApplyGameplayEffectSpecToSelf(Spec);
 		}
 	}
 }
