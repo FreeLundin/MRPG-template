@@ -1,0 +1,20 @@
+{
+	"configurations": [
+		{
+			"name": "MRPGEditor Editor Win64 Development (MRPG)",
+			"compilerPath": "C:\\Program Files\\Microsoft Visual Studio\\18\\Insiders\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"cStandard": "c17",
+			"cppStandard": "c++20",
+			"intelliSenseMode": "msvc-x64",
+			"compileCommands": "C:\\DEV\\MRPG\\.vscode\\compileCommands_MRPG.json"
+		},
+		{
+			"name": "Win32",
+			"compilerPath": "C:\\Program Files\\Microsoft Visual Studio\\18\\Insiders\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"cStandard": "c17",
+			"cppStandard": "c++20",
+			"intelliSenseMode": "msvc-x64",
+			"compileCommands": "C:\\DEV\\MRPG\\.vscode\\compileCommands_Default.json"
+		}
+	]
+}
