@@ -2,6 +2,7 @@
 // This is a compile unit for Source/Architecture. Register in MRPG.uproject and Target.cs.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class Architecture : ModuleRules
 {
@@ -14,6 +15,14 @@ public class Architecture : ModuleRules
 		// an include path to make cross-folder includes (e.g. GAS -> DataAssets)
 		// resolve without `..` relative paths.
 		PublicIncludePaths.Add(ModuleDirectory);
+
+		// Nested subfolders with their own Public/ directories (movement,
+		// locomotion profiles, state tree) need explicit include paths since
+		// UBT only auto-adds module-root Public/Private.
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Components", "Movement", "Mover2", "Public"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "DataAssets", "LocomotionProfiles", "Public"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "DataAssets", "StateTree", "Public"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "DataAssets", "MotionMatching", "Public"));
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
