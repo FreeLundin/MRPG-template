@@ -34,7 +34,7 @@ Legend: `[x]` done+verified (visual per ADR-003), `[~]` in progress, `[ ]` pendi
 - [~] T018a [US3] Implement data-driven character init from `UCharacterDataAsset`. *(InitFromCharacterDataAsset: instant override GE baselines, startup abilities, startup effects.)*
 - [~] T018b [US3] Implement unified damage pipeline + death/revive. *(IncomingDamage meta-attribute → Health after Armor; State.Dead/State.Ragdoll authoritative; OnStateDeadTriggered delegate.)*
 - [~] T018c [US3] Expose attribute change events for data-driven HUD. *(OnAttributeChanged BlueprintAssignable for Health/Mana/Stamina/max-stats.)*
-- [~] T018d [US3] **Visual First**: MRPG GAS Gameplay Debugger category exposing Health/Mana/Stamina+Max, Active Tags, Active Effects, Abilities + Cooldowns. *(This slice; verifiable with `~` → GAS category.)*
+- [~] T018d [US3] **Visual First**: MRPG GAS Gameplay Debugger category exposing Health/Mana/Stamina+Max, Active Tags, Active Effects, Abilities + Cooldowns. *(Category registered; player pawn now GAS-enabled via `AMRPGCharacterBase` + re-parented `SandboxCharacter_Mover`; ASC verified initialized in PIE with Health=100/100, Mana=50/50, Stamina=100/100 via `[MRPG]` log. Remaining: in-PIE `'` (apostrophe) screenshot of MRPG_GAS category.)*
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 - [ ] T019 [P] Clean up legacy `Config` files and move remaining values to `DataAssets`.
