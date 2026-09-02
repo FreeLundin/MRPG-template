@@ -35,6 +35,16 @@ void UMRPGAbilitySystemComponent::InitAbilitySystem()
 	}
 
 	InitAbilityActorInfo(NewOwner, NewAvatar);
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] ASC InitAbilitySystem on %s (owner=%s avatar=%s)"), *GetNameSafe(this), *GetNameSafe(NewOwner), *GetNameSafe(NewAvatar));
+	if (MRPGAttributeSet)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[MRPG]   Attributes: Health=%.1f/%.1f Mana=%.1f/%.1f Stamina=%.1f/%.1f Armor=%.1f Level=%d XP=%.0f"),
+			MRPGAttributeSet->GetHealth(), MRPGAttributeSet->GetMaxHealth(),
+			MRPGAttributeSet->GetMana(), MRPGAttributeSet->GetMaxMana(),
+			MRPGAttributeSet->GetStamina(), MRPGAttributeSet->GetMaxStamina(),
+			MRPGAttributeSet->GetArmor(), (int32)MRPGAttributeSet->GetCharacterLevel(),
+			MRPGAttributeSet->GetExperience());
+	}
 }
 
 void UMRPGAbilitySystemComponent::ApplyDamage(float DamageAmount, AActor* DamageSource)

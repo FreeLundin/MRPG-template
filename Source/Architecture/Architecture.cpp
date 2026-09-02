@@ -25,9 +25,11 @@ IMPLEMENT_MODULE(FMRPGArchitectureModule, Architecture)
 void FMRPGArchitectureModule::StartupModule()
 {
 #if WITH_GAMEPLAY_DEBUGGER
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] Architecture: registering MRPG_GAS Gameplay Debugger category"));
 	IGameplayDebugger& GameplayDebugger = IGameplayDebugger::Get();
 	GameplayDebugger.RegisterCategory("MRPG_GAS", IGameplayDebugger::FOnGetCategory::CreateStatic(&FGameplayDebuggerCategory_MRPG_GAS::MakeInstance), EGameplayDebuggerCategoryState::EnabledInGameAndSimulate, INDEX_NONE);
 	GameplayDebugger.NotifyCategoriesChanged();
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] Architecture: MRPG_GAS category registered OK"));
 #endif // WITH_GAMEPLAY_DEBUGGER
 }
 
