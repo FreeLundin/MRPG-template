@@ -33,7 +33,10 @@ public class Architecture : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"InputCore",
-			"EnhancedInput"
+			"EnhancedInput",
+			"UMG",
+			"Slate",
+			"SlateCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
