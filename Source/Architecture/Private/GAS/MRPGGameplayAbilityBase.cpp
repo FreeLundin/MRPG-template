@@ -1,4 +1,4 @@
-#include "MRPGGameplayAbilityBase.h"
+#include "GAS/MRPGGameplayAbilityBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 

@@ -1,4 +1,4 @@
-#include "CharacterDataAsset.h"
+#include "DataAssets/CharacterDataAssets/CharacterDataAsset.h"
 
 UCharacterDataAsset::UCharacterDataAsset()
 {

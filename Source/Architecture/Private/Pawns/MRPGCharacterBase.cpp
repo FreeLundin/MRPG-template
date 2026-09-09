@@ -1,4 +1,4 @@
-#include "MRPGCharacterBase.h"
+#include "Pawns/MRPGCharacterBase.h"
 #include "GAS/MRPGAbilitySystemComponent.h"
 #include "DataAssets/CharacterDataAssets/CharacterDataAsset.h"
 

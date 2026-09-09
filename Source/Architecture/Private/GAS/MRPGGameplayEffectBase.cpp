@@ -1,4 +1,4 @@
-#include "MRPGGameplayEffectBase.h"
+#include "GAS/MRPGGameplayEffectBase.h"
 
 UMRPGGameplayEffectBase::UMRPGGameplayEffectBase()
 {

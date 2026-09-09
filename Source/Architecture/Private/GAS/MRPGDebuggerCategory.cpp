@@ -1,10 +1,10 @@
-#include "MRPGDebuggerCategory.h"
+#include "GAS/MRPGDebuggerCategory.h"
 
 #if WITH_GAMEPLAY_DEBUGGER
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "MRPGAttributeSet.h"
+#include "GAS/MRPGAttributeSet.h"
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbility.h"

@@ -10,6 +10,7 @@ Unreal Engine 5.8 C++ project. Forked from Epic's GameAnimationSample (UE5 anima
 - Conventional commits: `feat|fix|docs|refactor|test|chore(<scope>): <desc>`
 - Binary assets via Git LFS (`.gitattributes`); heavy Epic Content excluded via `.gitignore` (lean template policy — see `D:\Lore\MRPG\Git_Branch_Strategy.md`)
 - Governance/knowledge (lore): `D:\Lore\MRPG` (ADRs, governance spec, branch strategy, MCP ops, knowledge base)
+- **Naming convention:** project content/classes use the `MRPG_` prefix (e.g. `AMRPGGameMode`, `AMRPGPlayerController`, `UMRPGAttributeBars`, `UMRPGAttributeSet`, `L_MRPG_GAS_Test`). `WBP_*` (widget Blueprints) and `GE_*` (GameplayEffects) keep their conventional `WBP_`/`GE_` category prefixes with MRPG-related names (`WBP_AttributeBars`, `GE_TestDamage`).
 
 ## Project Structure
 
@@ -58,8 +59,8 @@ Player/NPC GAS stack, read top-down by HUDs/debugger/abilities:
 
 `Source/Architecture/` hosts the vitals HUD in C++ to keep attribute plumbing out of fragile Blueprint graphs:
 - `GAS/MRPGAttributeBars.{h,cpp}` - `UUserWidget` (Abstract, Blueprintable) with **public** `UPROPERTY(meta=(BindWidget), BlueprintReadWrite)` bars `HealthBar`/`StaminaBar`/`ManaBar`, plus `BlueprintCallable virtual UpdateBars()` and `GetAbilitySystemComponent()`. It resolves the owning pawn's ASC, binds `OnAttributeChanged`, and refreshes bars every `NativeTick` (so it is robust to ASC/pawn init ordering — no divide-by-zero: max>0 guards).
-- `Controllers/MRPGPlayerController.{h,cpp}` - in `BeginPlay`, `CreateWidget<UMRPGAttributeBars>(this, AttributeBarsWidgetClass)` + `AddToViewport`. `AttributeBarsWidgetClass` is a `TSubclassOf` defaulted to `UMRPGAttributeBars::StaticClass()`.
-- `Controllers/MRPGGameMode.{h,cpp}` - sets `PlayerControllerClass = AMRPGPlayerController` and `DefaultPawnClass = AMRPGCharacterBase` (thin GAS base, no mesh — sufficient for HUD/debugger verification).
+- `Controllers/MRPGPlayerController.{h,cpp}` - in `BeginPlay`, `CreateWidget<UMRPGAttributeBars>(this, AttributeBarsWidgetClass)` + `AddToViewport`. **Gotcha:** `AttributeBarsWidgetClass` is a `TSubclassOf` **defaulted to `nullptr`** (NOT `UMRPGAttributeBars::StaticClass()` — the class is `UCLASS(Abstract)` so that default made `CreateWidget` return null and killed the HUD). `BeginPlay` falls back to `TryLoadClass<UMRPGAttributeBars>(FSoftClassPath("/Game/Widgets/WBP_AttributeBars.WBP_AttributeBars_C"))` when null. Designers can assign their own reparented Blueprint per GameMode/level.
+- `Controllers/MRPGGameMode.{h,cpp}` - sets `PlayerControllerClass = AMRPGPlayerController` and `DefaultPawnClass = AMRPGCharacterBase` (thin GAS base, no mesh — sufficient for HUD/debugger verification). **Required or the HUD won't show:** `Config/DefaultEngine.ini` sets `GlobalDefaultGameMode=/Script/Architecture.AMRPGGameMode` under `[/Script/EngineSettings.GameMapsSettings]`. Without this, PIE runs the engine-default `AGameModeBase` with a stock PC, so `AMRPGPlayerController::BeginPlay` never fires. **Three-part root cause** of "no HUD in PIE" fixed in commit `388ed55`: (1) abstract-class widget default → null widget, (2) no `GlobalDefaultGameMode` configured, (3) `WBP_AttributeBars` had been reparented in-memory but NOT saved, so `TryLoadClass<UMRPGAttributeBars>` couldn't resolve it — always `save_assets` after an in-memory MCP `set_parent`.
 
 `Content/Widgets/WBP_AttributeBars` is the Blueprint reparented onto `UMRPGAttributeBars`; its widget tree provides only the three progress-bar visuals (names HealthBar/StaminaBar/ManaBar). All logic lives in C++, so the BP EventGraph is intentionally left empty.
 

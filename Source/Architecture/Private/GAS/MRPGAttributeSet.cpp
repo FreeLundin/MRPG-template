@@ -1,4 +1,4 @@
-#include "MRPGAttributeSet.h"
+#include "GAS/MRPGAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"

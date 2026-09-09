@@ -1,10 +1,65 @@
 #include "GAS/MRPGAttributeBars.h"
+#include "Blueprint/WidgetTree.h"
 #include "Components/ProgressBar.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "GAS/MRPGAbilitySystemComponent.h"
 #include "GAS/MRPGAttributeSet.h"
 #include "Pawns/MRPGCharacterBase.h"
+
+void UMRPGAttributeBars::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// When this widget is created from C++ (no designer Blueprint template), the
+	// BindWidget bars are null. Build a default three-bar layout so the HUD is
+	// visible immediately. If a Blueprint subclass supplies its own bars,
+	// BuildDefaultWidgetTree is a no-op (bars already non-null) so we don't
+	// stomp the designer's tree.
+	BuildDefaultWidgetTree();
+}
+
+void UMRPGAttributeBars::BuildDefaultWidgetTree()
+{
+	if (HealthBar && StaminaBar && ManaBar)
+	{
+		// Bars already resolved (e.g. from a designer Blueprint template) — keep them.
+		return;
+	}
+
+	UVerticalBox* RootBox = NewObject<UVerticalBox>(this);
+	if (!RootBox)
+	{
+		return;
+	}
+
+	auto AddBar = [this, RootBox](TObjectPtr<UProgressBar>& OutBar, FLinearColor Fill)
+	{
+		UProgressBar* Bar = NewObject<UProgressBar>(RootBox);
+		Bar->SetFillColorAndOpacity(Fill);
+		Bar->SetPercent(0.f);
+		UVerticalBoxSlot* Slot = RootBox->AddChildToVerticalBox(Bar);
+		Slot->SetPadding(FMargin(20.f, 6.f, 20.f, 6.f));
+		Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		if (!OutBar)
+		{
+			OutBar = Bar;
+		}
+		else
+		{
+			OutBar = Bar;
+		}
+		OutBar = Bar;
+	};
+
+	AddBar(HealthBar, FLinearColor::Red);
+	AddBar(StaminaBar, FLinearColor::Green);
+	AddBar(ManaBar, FLinearColor::Blue);
+
+	WidgetTree->RootWidget = RootBox;
+}
 
 void UMRPGAttributeBars::NativeOnInitialized()
 {
