@@ -94,3 +94,4 @@ bool UMRPGControlsOverlay::IsOverlayVisible() const
 {
 	return GetVisibility() == ESlateVisibility::Visible || GetVisibility() == ESlateVisibility::SelfHitTestInvisible;
 }
+

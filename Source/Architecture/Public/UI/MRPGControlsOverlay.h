@@ -29,3 +29,4 @@ public:
 	UFUNCTION(BlueprintPure, Category = "MRPG|UI")
 	bool IsOverlayVisible() const;
 };
+
