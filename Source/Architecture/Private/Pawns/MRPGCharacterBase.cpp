@@ -1,8 +1,8 @@
 #include "Pawns/MRPGCharacterBase.h"
 #include "GAS/MRPGAbilitySystemComponent.h"
 #include "GAS/MRPGGameplayAbilityBase.h"
+#include "Components/MRPGInventoryComponent.h"
 #include "DataAssets/CharacterDataAssets/CharacterDataAsset.h"
-#include "Controllers/MRPGAIController.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 
@@ -11,9 +11,7 @@ AMRPGCharacterBase::AMRPGCharacterBase(const FObjectInitializer& ObjectInitializ
 {
 	// Self-add the project ASC so the pawn is GAS-enabled with no Blueprint wiring.
 	MRPGAbilitySystemComponent = CreateDefaultSubobject<UMRPGAbilitySystemComponent>(TEXT("MRPGAbilitySystemComponent"));
-
-	AIControllerClass = AMRPGAIController::StaticClass();
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	InventoryComponent = CreateDefaultSubobject<UMRPGInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AMRPGCharacterBase::BeginPlay()

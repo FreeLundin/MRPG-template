@@ -5,6 +5,8 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GAS/MRPGAttributeSet.h"
+#include "Components/MRPGInventoryComponent.h"
+#include "DataAssets/Items/MRPGItemDataAsset.h"
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbility.h"
@@ -13,8 +15,6 @@
 
 FGameplayDebuggerCategory_MRPG_GAS::FGameplayDebuggerCategory_MRPG_GAS()
 {
-	// gating - only show category when a debug actor is selected
-	bShowOnlyWithDebugActor = true;
 }
 
 TSharedRef<FGameplayDebuggerCategory> FGameplayDebuggerCategory_MRPG_GAS::MakeInstance()
@@ -42,6 +42,7 @@ void FGameplayDebuggerCategory_MRPG_GAS::CollectData(APlayerController* OwnerPC,
 	CollectTags(ASC);
 	CollectActiveEffects(ASC);
 	CollectAbilities(ASC);
+	CollectInventory(DebugActor);
 }
 
 void FGameplayDebuggerCategory_MRPG_GAS::CollectAttributes(UAbilitySystemComponent* ASC)
@@ -49,8 +50,12 @@ void FGameplayDebuggerCategory_MRPG_GAS::CollectAttributes(UAbilitySystemCompone
 	if (const UMRPGAttributeSet* AttributeSet = ASC->GetSet<UMRPGAttributeSet>())
 	{
 		AddTextLine(FString::Printf(TEXT("{white}-- Attributes --")));
+		AddTextLine(FString::Printf(TEXT("  {green}Health:   {white}%.1f / %.1f"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth()));
 		AddTextLine(FString::Printf(TEXT("  {green}Health:   {white}%.1f / %.1f  (Regen: %.1f/s)"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth(), AttributeSet->GetHealthRegenRate()));
 		AddTextLine(FString::Printf(TEXT("  {cyan}Mana:     {white}%.1f / %.1f"), AttributeSet->GetMana(), AttributeSet->GetMaxMana()));
+		AddTextLine(FString::Printf(TEXT("  {yellow}Stamina:  {white}%.1f / %.1f"), AttributeSet->GetStamina(), AttributeSet->GetMaxStamina()));
+		AddTextLine(FString::Printf(TEXT("  {blue}Armor:    {white}%.1f"), AttributeSet->GetArmor()));
+		AddTextLine(FString::Printf(TEXT("  {magenta}Movement: {white}%.1f  {magenta}Level: {white}%.0f"), AttributeSet->GetMovementSpeed(), AttributeSet->GetCharacterLevel()));
 		AddTextLine(FString::Printf(TEXT("  {yellow}Stamina:  {white}%.1f / %.1f  (Regen: %.1f/s)"), AttributeSet->GetStamina(), AttributeSet->GetMaxStamina(), AttributeSet->GetStaminaRegenRate()));
 		AddTextLine(FString::Printf(TEXT("  {orange}Hunger:   {white}%.1f / %.1f"), AttributeSet->GetHunger(), AttributeSet->GetMaxHunger()));
 		AddTextLine(FString::Printf(TEXT("  {blue}Thirst:   {white}%.1f / %.1f"), AttributeSet->GetThirst(), AttributeSet->GetMaxThirst()));
@@ -153,6 +158,50 @@ void FGameplayDebuggerCategory_MRPG_GAS::CollectAbilities(UAbilitySystemComponen
 		else
 		{
 			AddTextLine(FString::Printf(TEXT("  {green}%s"), *AbilityName));
+		}
+	}
+}
+
+void FGameplayDebuggerCategory_MRPG_GAS::CollectInventory(AActor* DebugActor)
+{
+	if (!DebugActor)
+	{
+		return;
+	}
+
+	const UMRPGInventoryComponent* Inventory = DebugActor->FindComponentByClass<UMRPGInventoryComponent>();
+	if (!Inventory)
+	{
+		return;
+	}
+
+	const TArray<FMRPGInventorySlot>& Slots = Inventory->GetSlots();
+	int32 TotalItems = 0;
+	for (const FMRPGInventorySlot& Slot : Slots)
+	{
+		if (!Slot.IsEmpty())
+		{
+			TotalItems += Slot.Quantity;
+		}
+	}
+
+	AddTextLine(FString::Printf(TEXT("{white}-- Inventory (Items: %d, Weight: %.1f / %.1f kg%s) --"),
+		TotalItems,
+		Inventory->GetTotalWeight(),
+		Inventory->GetEffectiveMaxWeight(),
+		Inventory->IsOverencumbered() ? TEXT(" {red}[OVERENCUMBERED]") : TEXT("")));
+
+	for (const FMRPGInventorySlot& Slot : Slots)
+	{
+		if (!Slot.IsEmpty())
+		{
+			const FString EquipStr = Slot.bIsEquipped ? TEXT("{green}[EQUIPPED] ") : TEXT("");
+			const FString ItemName = Slot.ItemData->ItemName.IsEmpty() ? Slot.ItemData->GetName() : Slot.ItemData->ItemName.ToString();
+			AddTextLine(FString::Printf(TEXT("  Slot %02d: %s{white}%s (x%d)"),
+				Slot.SlotIndex,
+				*EquipStr,
+				*ItemName,
+				Slot.Quantity));
 		}
 	}
 }

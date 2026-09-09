@@ -31,3 +31,4 @@ UGE_SurvivalDegradation::UGE_SurvivalDegradation()
 		StaminaMod.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(5.0f));
 	}
 }
+

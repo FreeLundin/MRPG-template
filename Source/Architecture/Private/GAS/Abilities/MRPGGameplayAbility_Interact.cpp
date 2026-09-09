@@ -1,6 +1,7 @@
 #include "GAS/Abilities/MRPGGameplayAbility_Interact.h"
 #include "GAS/MRPGAbilitySystemComponent.h"
 #include "Pawns/MRPGCharacterBase.h"
+#include "Actors/MRPGLootContainer.h"
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
 #include "Engine/OverlapResult.h"
@@ -31,11 +32,18 @@ void UMRPGGameplayAbility_Interact::ActivateAbility(
 
 	if (ActorInfo)
 	{
+		AActor* Avatar = ActorInfo->AvatarActor.Get();
 		AActor* Target = FindBestInteractionTarget();
-		if (AMRPGCharacterBase* Character = Cast<AMRPGCharacterBase>(ActorInfo->AvatarActor.Get()))
+		if (AMRPGCharacterBase* Character = Cast<AMRPGCharacterBase>(Avatar))
 		{
 			Character->OnAbilityInteract();
 		}
+
+		if (AMRPGLootContainer* LootContainer = Cast<AMRPGLootContainer>(Target))
+		{
+			LootContainer->Interact(Avatar);
+		}
+
 		UE_LOG(LogTemp, Log, TEXT("[MRPG] Interact Ability executed. Target: %s"), *GetNameSafe(Target));
 	}
 

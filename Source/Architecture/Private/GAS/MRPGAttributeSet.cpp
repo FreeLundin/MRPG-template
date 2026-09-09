@@ -195,6 +195,10 @@ void UMRPGAttributeSet::HandleDamage()
 
 	if (bIsDead)
 	{
+		// Enter the dead state: raise State.Dead (drives death/ragdoll via the
+		// ASC's OnTagUpdated delegate) and clear any transient ragdoll state.
+		ASC->AddLooseGameplayTag(DeadTag);
+		ASC->RemoveLooseGameplayTag(RagdollTag);
 		// Apply State.Dead and State.Ragdoll tags. These are loose tags owned by
 		// the ASC rather than backed by a GameplayEffect spec so the state
 		// machine transitions immediately.
@@ -211,6 +215,8 @@ void UMRPGAttributeSet::HandleDamage()
 	}
 	else
 	{
+		// Alive: guarantee the dead state is cleared (revive / non-lethal damage).
+		ASC->RemoveLooseGameplayTag(DeadTag);
 		// Revived / healed above zero. Clear the death tags.
 		if (DeadTag.IsValid() && ASC->HasMatchingGameplayTag(DeadTag))
 		{

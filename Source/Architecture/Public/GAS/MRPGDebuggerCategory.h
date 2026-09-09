@@ -38,6 +38,7 @@ private:
 	void CollectTags(UAbilitySystemComponent* ASC);
 	void CollectActiveEffects(UAbilitySystemComponent* ASC);
 	void CollectAbilities(UAbilitySystemComponent* ASC);
+	void CollectInventory(AActor* DebugActor);
 };
 
 #endif // WITH_GAMEPLAY_DEBUGGER

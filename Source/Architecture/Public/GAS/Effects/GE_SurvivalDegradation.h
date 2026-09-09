@@ -16,3 +16,4 @@ class ARCHITECTURE_API UGE_SurvivalDegradation : public UMRPGGameplayEffectBase
 public:
 	UGE_SurvivalDegradation();
 };
+

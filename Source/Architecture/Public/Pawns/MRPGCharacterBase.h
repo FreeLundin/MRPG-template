@@ -2,13 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "GameplayTagContainer.h"
 #include "MRPGCharacterBase.generated.h"
 
 class UMRPGAbilitySystemComponent;
 class UCharacterDataAsset;
-class UStateTreeDataAsset;
 class UAbilitySystemComponent;
+class UMRPGInventoryComponent;
 
 /**
  * Thin project-wide player pawn base for the MRPG template.
@@ -41,19 +40,18 @@ public:
 	TObjectPtr<UMRPGAbilitySystemComponent> MRPGAbilitySystemComponent;
 
 	/**
+	 * Replicated inventory component for items, equipment, and crafting.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MRPG|Inventory")
+	TObjectPtr<UMRPGInventoryComponent> InventoryComponent;
+
+	/**
 	 * Optional data asset describing attribute baselines and startup GAS
 	 * abilities/effects. If assigned, InitFromCharacterDataAsset is called at
 	 * BeginPlay after the ability system has been initialized.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MRPG|GAS")
 	TObjectPtr<UCharacterDataAsset> CharacterDataAsset;
-
-	/**
-	 * Optional StateTree data asset for configuring NPC AI profiles (Patrol,
-	 * Chase speeds, DetectionRadius) when possessed by AMRPGAIController.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MRPG|AI")
-	TObjectPtr<UStateTreeDataAsset> StateTreeDataAsset;
 
 	/**
 	 * GAS entry point — called at BeginPlay. Initializes ability actor info /
@@ -66,6 +64,10 @@ public:
 	/** Returns the project ASC (or nullptr). Exposes the component to Blueprint/C++ consumers. */
 	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
 	UMRPGAbilitySystemComponent* GetMRPGAbilitySystemComponent() const;
+
+	/** Returns the character's inventory component. */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|Inventory")
+	UMRPGInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 
 	// --- Gameplay Ability Callbacks / Virtual Hooks for Blueprints ---
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "MRPG|Actions")
