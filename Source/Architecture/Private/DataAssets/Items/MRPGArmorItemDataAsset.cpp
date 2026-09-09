@@ -11,3 +11,4 @@ UMRPGArmorItemDataAsset::UMRPGArmorItemDataAsset()
 	MaxStackSize = 1;
 	Weight = 3.5f;
 }
+

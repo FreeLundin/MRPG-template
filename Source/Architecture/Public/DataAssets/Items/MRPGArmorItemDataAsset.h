@@ -59,3 +59,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Armor|Visuals")
 	FName AttachmentSocketName;
 };
+

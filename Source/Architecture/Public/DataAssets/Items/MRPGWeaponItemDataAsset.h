@@ -105,3 +105,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Ranged", meta = (ClampMin = "0", UIMin = "0"))
 	int32 MagazineCapacity;
 };
+

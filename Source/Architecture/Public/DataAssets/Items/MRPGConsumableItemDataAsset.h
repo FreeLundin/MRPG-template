@@ -65,3 +65,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Consumable|Audio")
 	TSoftObjectPtr<USoundBase> ConsumeSound;
 };
+

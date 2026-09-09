@@ -16,3 +16,4 @@ UMRPGWeaponItemDataAsset::UMRPGWeaponItemDataAsset()
 	MaxStackSize = 1;
 	Weight = 2.0f;
 }
+

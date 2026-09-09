@@ -100,3 +100,4 @@ bool AMRPGLootContainer::LootAll(AActor* Interactor)
 
 	return bLootedAny;
 }
+

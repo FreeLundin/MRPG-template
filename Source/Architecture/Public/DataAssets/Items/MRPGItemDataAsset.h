@@ -97,3 +97,4 @@ public:
 
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 };
+

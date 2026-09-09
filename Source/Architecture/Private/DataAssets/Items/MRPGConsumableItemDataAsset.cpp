@@ -13,3 +13,4 @@ UMRPGConsumableItemDataAsset::UMRPGConsumableItemDataAsset()
 	MaxStackSize = 20;
 	Weight = 0.25f;
 }
+

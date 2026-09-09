@@ -13,3 +13,4 @@ FPrimaryAssetId UMRPGItemDataAsset::GetPrimaryAssetId() const
 {
 	return FPrimaryAssetId(TEXT("MRPGItem"), GetFName());
 }
+

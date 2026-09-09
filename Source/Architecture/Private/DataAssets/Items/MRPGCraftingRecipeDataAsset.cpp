@@ -14,3 +14,4 @@ FPrimaryAssetId UMRPGCraftingRecipeDataAsset::GetPrimaryAssetId() const
 {
 	return FPrimaryAssetId(TEXT("MRPGCraftingRecipe"), GetFName());
 }
+

@@ -208,3 +208,4 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Slots)
 	TArray<FMRPGInventorySlot> Slots;
 };
+
