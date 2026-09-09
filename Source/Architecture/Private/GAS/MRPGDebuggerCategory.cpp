@@ -15,6 +15,8 @@
 
 FGameplayDebuggerCategory_MRPG_GAS::FGameplayDebuggerCategory_MRPG_GAS()
 {
+	// gating - only show category when a debug actor is selected
+	bShowOnlyWithDebugActor = true;
 }
 
 TSharedRef<FGameplayDebuggerCategory> FGameplayDebuggerCategory_MRPG_GAS::MakeInstance()
