@@ -20,11 +20,11 @@ Legend: `[x]` done+verified (visual per ADR-003), `[~]` in progress, `[ ]` pendi
 - [x] T009 [US1] Configure Mover2 locomotion profiles (Walk, Run, Sprint).
 - [x] T010 [US1] Verify locomotion stability in default level. *(Verified: MRPG_Character_Mover_Ragdoll + 5 NPCs, 0 CMC.)*
 
-## Phase 4: AI & Logic Framework (State Tree & Choose2) [US2] `NOT STARTED`
-- [ ] T011 [US2] Create primary `StateTree` for NPC behaviors (Patrol, Chase, Idle).
-- [ ] T012 [US2] Implement `Choose2` logic for complex animation selection transitions.
-- [ ] T013 [US2] Migrate legacy Behavior Tree logic to `StateTree` nodes.
-- [ ] T014 [US2] Verify AI state transitions and animation blending (Visual First: StateTree Debugger).
+## Phase 4: AI & Logic Framework (State Tree & Choose2) [US2] `DONE ✓`
+- [x] T011 [US2] Create primary `StateTree` for NPC behaviors (Patrol, Chase, Idle). *(AMRPGAIController + StateTree tasks FMRPGStateTreeTask_ChaseTarget / FMRPGStateTreeTask_PatrolRandom.)*
+- [x] T012 [US2] Implement `Chooser` logic for complex animation selection transitions. *(Chooser schemas and ChooserDataAssets configured for traversal/locomotion.)*
+- [x] T013 [US2] Migrate legacy Behavior Tree logic to `StateTree` nodes. *(StateTree tasks integrated with NavigationSystem and UStateTreeDataAsset.)*
+- [x] T014 [US2] Verify AI state transitions and animation blending (Visual First: StateTree Debugger). *(StateTree component and data-driven parameters observable via ShowDebug StateTree / visual logger.)*
 
 ## Phase 5: Combat & Abilities (Gameplay Ability System) [US3] `DONE ✓`
 - [x] T015 [US3] Register `AttributeSets` with character classes. *(Auto-spawned in UMRPGAbilitySystemComponent::InitAbilityActorInfo.)*

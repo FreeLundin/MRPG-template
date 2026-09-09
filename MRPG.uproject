@@ -172,6 +172,14 @@
 			"Enabled": true
 		},
 		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "PhysicsControl",
+			"Enabled": true
+		},
+		{
 			"Name": "AIAssistant",
 			"Enabled": true
 		}

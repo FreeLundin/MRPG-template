@@ -43,3 +43,4 @@ public:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo) override;
 };
+

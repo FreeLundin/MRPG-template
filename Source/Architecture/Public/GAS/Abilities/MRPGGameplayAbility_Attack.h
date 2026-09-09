@@ -50,3 +50,4 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "MRPG|Ability|Attack")
 	void PerformAttackHitDetection();
 };
+

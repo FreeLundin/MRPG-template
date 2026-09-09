@@ -36,3 +36,4 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "MRPG|Ability|Interact")
 	AActor* FindBestInteractionTarget() const;
 };
+

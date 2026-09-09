@@ -104,3 +104,4 @@ void UMRPGGameplayAbility_Jump::EndAbility(
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+

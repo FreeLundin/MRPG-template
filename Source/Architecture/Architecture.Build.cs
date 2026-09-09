@@ -21,7 +21,11 @@ public class Architecture : ModuleRules
 			"EnhancedInput",
 			"UMG",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"AIModule",
+			"StateTreeModule",
+			"GameplayStateTreeModule",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

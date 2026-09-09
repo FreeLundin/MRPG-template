@@ -7,6 +7,7 @@
 
 class UMRPGAbilitySystemComponent;
 class UCharacterDataAsset;
+class UStateTreeDataAsset;
 class UAbilitySystemComponent;
 
 /**
@@ -46,6 +47,13 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MRPG|GAS")
 	TObjectPtr<UCharacterDataAsset> CharacterDataAsset;
+
+	/**
+	 * Optional StateTree data asset for configuring NPC AI profiles (Patrol,
+	 * Chase speeds, DetectionRadius) when possessed by AMRPGAIController.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MRPG|AI")
+	TObjectPtr<UStateTreeDataAsset> StateTreeDataAsset;
 
 	/**
 	 * GAS entry point — called at BeginPlay. Initializes ability actor info /
