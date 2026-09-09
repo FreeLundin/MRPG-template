@@ -18,10 +18,6 @@ class ARCHITECTURE_API UMRPGGameplayAbility_Jump : public UMRPGGameplayAbilityBa
 public:
 	UMRPGGameplayAbility_Jump();
 
-	/** Stamina cost required to jump. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability|Jump")
-	float StaminaCost;
-
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayTagContainer* SourceTags = nullptr,

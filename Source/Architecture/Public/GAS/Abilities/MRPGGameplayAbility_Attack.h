@@ -18,10 +18,6 @@ class ARCHITECTURE_API UMRPGGameplayAbility_Attack : public UMRPGGameplayAbility
 public:
 	UMRPGGameplayAbility_Attack();
 
-	/** Stamina cost required to attack. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability|Attack")
-	float StaminaCost;
-
 	/** Base damage dealt by this attack before attribute scaling. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability|Attack")
 	float BaseDamage;

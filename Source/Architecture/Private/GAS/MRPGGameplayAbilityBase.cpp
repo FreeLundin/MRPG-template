@@ -2,6 +2,12 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 
+UMRPGGameplayAbilityBase::UMRPGGameplayAbilityBase()
+	: StaminaCost(0.0f)
+	, bHasInitialized(false)
+{
+}
+
 void UMRPGGameplayAbilityBase::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);

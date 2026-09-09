@@ -27,7 +27,7 @@ class ARCHITECTURE_API UMRPGGameplayAbilityBase : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-	UMRPGGameplayAbilityBase() = default;
+	UMRPGGameplayAbilityBase();
 
 	/** Ability.* gameplay tag identifying this ability (used for input binding & UI). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability")
@@ -40,6 +40,10 @@ public:
 	/** On activation, these owner-ASC tags are added (e.g. State.Combat while attacking). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability")
 	FGameplayTagContainer ActivateTags;
+
+	/** Stamina required to activate this ability (0 = free) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Ability", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float StaminaCost;
 
 	/** True once the ability has finished activating (used for handshake with input). */
 	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Ability")
