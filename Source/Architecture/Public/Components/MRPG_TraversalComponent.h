@@ -107,3 +107,4 @@ protected:
 	/** Collision channel used for Obstacles (ECC_GameTraceChannel3) */
 	ECollisionChannel ObstacleTraceChannel;
 };
+

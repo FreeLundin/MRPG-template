@@ -44,3 +44,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|Glide", meta = (ClampMin = "200.0", UIMin = "200.0"))
 	float GlideForwardSpeed;
 };
+

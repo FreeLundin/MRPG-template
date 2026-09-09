@@ -78,3 +78,4 @@ void UMRPG_GameplayAbility_Mantle::ActivateAbility(
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
+

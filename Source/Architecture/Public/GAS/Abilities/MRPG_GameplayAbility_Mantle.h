@@ -38,3 +38,4 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Traversal")
 	FMRPG_MantleData ActiveMantleData;
 };
+

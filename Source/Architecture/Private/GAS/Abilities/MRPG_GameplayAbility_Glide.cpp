@@ -73,3 +73,4 @@ void UMRPG_GameplayAbility_Glide::EndAbility(
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+

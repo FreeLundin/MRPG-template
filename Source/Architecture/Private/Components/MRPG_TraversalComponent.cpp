@@ -123,3 +123,4 @@ bool UMRPG_TraversalComponent::CanGlide() const
 	// Eligible to glide if more than 300cm off the ground
 	return !bHitGround;
 }
+
