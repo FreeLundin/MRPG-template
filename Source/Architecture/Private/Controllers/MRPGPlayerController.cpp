@@ -1,28 +1,22 @@
 #include "Controllers/MRPGPlayerController.h"
 #include "GAS/MRPGAttributeBars.h"
+#include "UI/MRPGControlsOverlay.h"
 #include "Blueprint/UserWidget.h"
 #include "UObject/SoftObjectPath.h"
 
 AMRPGPlayerController::AMRPGPlayerController()
 {
-	// The default widget class is intentionally left null here: UMRPGAttributeBars
-	// is UCLASS(Abstract), so it cannot be instantiated directly. The concrete
-	// visual widget is the Blueprint WBP_AttributeBars (reparented onto
-	// UMRPGAttributeBars), loaded in BeginPlay. Designers can override
-	// AttributeBarsWidgetClass per game mode / level to use their own reparented
-	// Blueprint instead.
 	AttributeBarsWidgetClass = nullptr;
+	ControlsOverlayWidgetClass = UMRPGControlsOverlay::StaticClass();
 }
 
 void AMRPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 1. Initialize Attribute Bars HUD
 	if (!AttributeBarsWidgetClass)
 	{
-		// Fallback: load the project's concrete attribute-bars widget Blueprint so
-		// the HUD appears without any Blueprint wiring. A designer who wants a
-		// different look can assign their own class on the GameMode / controller.
 		static const FSoftClassPath AttributeBarsClassPath(
 			TEXT("/Game/Widgets/WBP_AttributeBars.WBP_AttributeBars_C"));
 		AttributeBarsWidgetClass = AttributeBarsClassPath.TryLoadClass<UMRPGAttributeBars>();
@@ -30,12 +24,42 @@ void AMRPGPlayerController::BeginPlay()
 
 	if (AttributeBarsWidgetClass)
 	{
-		// CreateWidget is passed `this` so the widget's GetOwningPlayer() resolves
-		// to this controller and its pawn once possessed.
 		AttributeBarsWidget = CreateWidget<UMRPGAttributeBars>(this, AttributeBarsWidgetClass);
 		if (AttributeBarsWidget)
 		{
 			AttributeBarsWidget->AddToViewport(10);
 		}
 	}
+
+	// 2. Initialize Controls Help Overlay
+	if (ControlsOverlayWidgetClass)
+	{
+		ControlsOverlayWidget = CreateWidget<UMRPGControlsOverlay>(this, ControlsOverlayWidgetClass);
+		if (ControlsOverlayWidget)
+		{
+			ControlsOverlayWidget->AddToViewport(5);
+		}
+	}
 }
+
+void AMRPGPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (InputComponent)
+	{
+		InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AMRPGPlayerController::ToggleControlsOverlay);
+		InputComponent->BindKey(EKeys::F1, IE_Pressed, this, &AMRPGPlayerController::ToggleControlsOverlay);
+	}
+}
+
+void AMRPGPlayerController::ToggleControlsOverlay()
+{
+	if (ControlsOverlayWidget)
+	{
+		ControlsOverlayWidget->ToggleVisibilityState();
+		UE_LOG(LogTemp, Log, TEXT("[MRPG] Controls Overlay visibility toggled (Visible=%s)"),
+			ControlsOverlayWidget->IsOverlayVisible() ? TEXT("True") : TEXT("False"));
+	}
+}
+

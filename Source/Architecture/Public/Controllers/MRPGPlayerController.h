@@ -5,16 +5,12 @@
 #include "MRPGPlayerController.generated.h"
 
 class UMRPGAttributeBars;
+class UMRPGControlsOverlay;
 
 /**
  * Project player controller for MRPG.
  *
- * Hosts the GAS attribute HUD widget: on BeginPlay it creates the configured
- * widget class and adds it to the viewport. The widget class is a public,
- * designer-tunable @ref AttributeBarsWidgetClass (default provided by the
- * constructor to UMRPGAttributeBars), so no Blueprint graph is required to get
- * the HUD on screen. Keeping the creation/hosting here in C++ removes the
- * fragile, error-prone Blueprint wiring that typically plagues widget hosting.
+ * Hosts the GAS attribute HUD widget and Controls Overlay widget.
  */
 UCLASS()
 class ARCHITECTURE_API AMRPGPlayerController : public APlayerController
@@ -25,17 +21,30 @@ public:
 	AMRPGPlayerController();
 
 	/**
-	 * Widget to create and display. Must be (or derive from) UMRPGAttributeBars
-	 * so the C++ systems layer can bind its HealthBar / StaminaBar / ManaBar.
-	 * Designer-tunable per game mode / level.
+	 * Widget to create and display for attribute bars.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|HUD")
 	TSubclassOf<UMRPGAttributeBars> AttributeBarsWidgetClass;
 
+	/**
+	 * Widget to create and display for the controls help legend overlay.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MRPG|HUD")
+	TSubclassOf<UMRPGControlsOverlay> ControlsOverlayWidgetClass;
+
+	/** Toggles visibility of the on-screen controls overlay. */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|HUD")
+	void ToggleControlsOverlay();
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
 
-	/** The widget this controller created (if any). */
-	UPROPERTY()
+	/** The attribute bars widget this controller created. */
+	UPROPERTY(BlueprintReadOnly, Category = "MRPG|HUD")
 	TObjectPtr<UMRPGAttributeBars> AttributeBarsWidget;
+
+	/** The controls overlay widget this controller created. */
+	UPROPERTY(BlueprintReadOnly, Category = "MRPG|HUD")
+	TObjectPtr<UMRPGControlsOverlay> ControlsOverlayWidget;
 };
