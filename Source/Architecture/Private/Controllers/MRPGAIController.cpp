@@ -134,3 +134,4 @@ float AMRPGAIController::GetAttackRange() const
 {
 	return StateTreeDataAsset ? StateTreeDataAsset->AttackRange : 150.0f;
 }
+
