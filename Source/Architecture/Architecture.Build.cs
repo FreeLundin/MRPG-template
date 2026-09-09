@@ -25,7 +25,10 @@ public class Architecture : ModuleRules
 			"AIModule",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
-			"NavigationSystem"
+			"NavigationSystem",
+			"MotionWarping",
+			"Mover",
+			"CommonUI"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
