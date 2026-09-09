@@ -49,11 +49,13 @@ void FGameplayDebuggerCategory_MRPG_GAS::CollectAttributes(UAbilitySystemCompone
 	if (const UMRPGAttributeSet* AttributeSet = ASC->GetSet<UMRPGAttributeSet>())
 	{
 		AddTextLine(FString::Printf(TEXT("{white}-- Attributes --")));
-		AddTextLine(FString::Printf(TEXT("  {green}Health:   {white}%.1f / %.1f"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth()));
+		AddTextLine(FString::Printf(TEXT("  {green}Health:   {white}%.1f / %.1f  (Regen: %.1f/s)"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth(), AttributeSet->GetHealthRegenRate()));
 		AddTextLine(FString::Printf(TEXT("  {cyan}Mana:     {white}%.1f / %.1f"), AttributeSet->GetMana(), AttributeSet->GetMaxMana()));
-		AddTextLine(FString::Printf(TEXT("  {yellow}Stamina:  {white}%.1f / %.1f"), AttributeSet->GetStamina(), AttributeSet->GetMaxStamina()));
-		AddTextLine(FString::Printf(TEXT("  {blue}Armor:    {white}%.1f"), AttributeSet->GetArmor()));
-		AddTextLine(FString::Printf(TEXT("  {magenta}Movement: {white}%.1f  {magenta}Level: {white}%.0f"), AttributeSet->GetMovementSpeed(), AttributeSet->GetCharacterLevel()));
+		AddTextLine(FString::Printf(TEXT("  {yellow}Stamina:  {white}%.1f / %.1f  (Regen: %.1f/s)"), AttributeSet->GetStamina(), AttributeSet->GetMaxStamina(), AttributeSet->GetStaminaRegenRate()));
+		AddTextLine(FString::Printf(TEXT("  {orange}Hunger:   {white}%.1f / %.1f"), AttributeSet->GetHunger(), AttributeSet->GetMaxHunger()));
+		AddTextLine(FString::Printf(TEXT("  {blue}Thirst:   {white}%.1f / %.1f"), AttributeSet->GetThirst(), AttributeSet->GetMaxThirst()));
+		AddTextLine(FString::Printf(TEXT("  {blue}Armor:    {white}%.1f  {red}Damage: {white}%.1f  {red}Crit: {white}%.1f%%"), AttributeSet->GetArmor(), AttributeSet->GetDamage(), AttributeSet->GetCritChance()));
+		AddTextLine(FString::Printf(TEXT("  {magenta}Movement: {white}%.1f  {magenta}Level: {white}%.0f  {yellow}Karma: {white}%.1f"), AttributeSet->GetMovementSpeed(), AttributeSet->GetCharacterLevel(), AttributeSet->GetKarma()));
 	}
 	else
 	{

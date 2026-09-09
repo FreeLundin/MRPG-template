@@ -85,6 +85,39 @@ public:
 	FGameplayAttributeData CharacterLevel;
 	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, CharacterLevel)
 
+	// --- Survival / Extended RPG Stats ---
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Hunger, Category = "MRPG|Survival")
+	FGameplayAttributeData Hunger;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, Hunger)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHunger, Category = "MRPG|Survival")
+	FGameplayAttributeData MaxHunger;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, MaxHunger)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Thirst, Category = "MRPG|Survival")
+	FGameplayAttributeData Thirst;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, Thirst)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxThirst, Category = "MRPG|Survival")
+	FGameplayAttributeData MaxThirst;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, MaxThirst)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthRegenRate, Category = "MRPG|Vitals")
+	FGameplayAttributeData HealthRegenRate;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, HealthRegenRate)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenRate, Category = "MRPG|Vitals")
+	FGameplayAttributeData StaminaRegenRate;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, StaminaRegenRate)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CritChance, Category = "MRPG|Combat")
+	FGameplayAttributeData CritChance;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, CritChance)
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Karma, Category = "MRPG|Progression")
+	FGameplayAttributeData Karma;
+	ATTRIBUTE_ACCESSORS(UMRPGAttributeSet, Karma)
+
 	/** Temporary store for any overkill applied to Health so a gameplay effect can consume it (e.g. weakening armor). */
 	UPROPERTY(BlueprintReadOnly, Category = "MRPG|Combat")
 	FGameplayAttributeData IncomingDamage;
@@ -155,4 +188,28 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_CharacterLevel(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_Hunger(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_MaxHunger(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_Thirst(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_MaxThirst(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_HealthRegenRate(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_StaminaRegenRate(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_CritChance(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_Karma(const FGameplayAttributeData& OldValue);
 };

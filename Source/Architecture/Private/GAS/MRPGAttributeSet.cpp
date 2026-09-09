@@ -27,9 +27,17 @@ UMRPGAttributeSet::UMRPGAttributeSet()
 	Mana = 50.f;
 	MaxStamina = 100.f;
 	Stamina = 100.f;
+	MaxHunger = 100.f;
+	Hunger = 100.f;
+	MaxThirst = 100.f;
+	Thirst = 100.f;
+	HealthRegenRate = 1.f;
+	StaminaRegenRate = 10.f;
 	Armor = 0.f;
 	Damage = 25.f;
+	CritChance = 5.f;
 	MovementSpeed = 500.f;
+	Karma = 0.f;
 	Experience = 0.f;
 	CharacterLevel = 1.f;
 	IncomingDamage = 0.f;
@@ -45,9 +53,17 @@ void UMRPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Hunger, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, MaxHunger, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Thirst, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, MaxThirst, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, HealthRegenRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, StaminaRegenRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Damage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, CritChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, MovementSpeed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Karma, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, Experience, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UMRPGAttributeSet, CharacterLevel, COND_None, REPNOTIFY_Always);
 }
@@ -69,7 +85,19 @@ void UMRPGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
 	}
-	else if (Attribute == GetMaxHealthAttribute())
+	else if (Attribute == GetHungerAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHunger());
+	}
+	else if (Attribute == GetThirstAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxThirst());
+	}
+	else if (Attribute == GetMaxHealthAttribute() ||
+		Attribute == GetMaxManaAttribute() ||
+		Attribute == GetMaxStaminaAttribute() ||
+		Attribute == GetMaxHungerAttribute() ||
+		Attribute == GetMaxThirstAttribute())
 	{
 		// Never allow a non-positive maximum.
 		NewValue = FMath::Max(NewValue, 1.f);
@@ -119,12 +147,28 @@ void UMRPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		// Reset the meta-attribute so it does not accumulate across executions.
 		SetIncomingDamage(0.f);
 	}
+	else if (EvaluatedAttribute == GetHungerAttribute())
+	{
+		SetHunger(FMath::Clamp(GetHunger(), 0.f, FMath::Max(GetMaxHunger(), 0.f)));
+		BroadcastAttributeChanged(GetHungerAttribute(), OldEvaluatedValue);
+	}
+	else if (EvaluatedAttribute == GetThirstAttribute())
+	{
+		SetThirst(FMath::Clamp(GetThirst(), 0.f, FMath::Max(GetMaxThirst(), 0.f)));
+		BroadcastAttributeChanged(GetThirstAttribute(), OldEvaluatedValue);
+	}
 	else if (EvaluatedAttribute == GetManaAttribute() ||
 		EvaluatedAttribute == GetStaminaAttribute() ||
 		EvaluatedAttribute == GetMovementSpeedAttribute() ||
 		EvaluatedAttribute == GetMaxManaAttribute() ||
 		EvaluatedAttribute == GetMaxStaminaAttribute() ||
 		EvaluatedAttribute == GetMaxHealthAttribute() ||
+		EvaluatedAttribute == GetMaxHungerAttribute() ||
+		EvaluatedAttribute == GetMaxThirstAttribute() ||
+		EvaluatedAttribute == GetHealthRegenRateAttribute() ||
+		EvaluatedAttribute == GetStaminaRegenRateAttribute() ||
+		EvaluatedAttribute == GetCritChanceAttribute() ||
+		EvaluatedAttribute == GetKarmaAttribute() ||
 		EvaluatedAttribute == GetArmorAttribute())
 	{
 		// Non-vital attributes that HUD / gameplay still wants to observe.
@@ -151,15 +195,33 @@ void UMRPGAttributeSet::HandleDamage()
 
 	if (bIsDead)
 	{
-		// Enter the dead state: raise State.Dead (drives death/ragdoll via the
-		// ASC's OnTagUpdated delegate) and clear any transient ragdoll state.
-		ASC->AddLooseGameplayTag(DeadTag);
-		ASC->RemoveLooseGameplayTag(RagdollTag);
+		// Apply State.Dead and State.Ragdoll tags. These are loose tags owned by
+		// the ASC rather than backed by a GameplayEffect spec so the state
+		// machine transitions immediately.
+		if (DeadTag.IsValid() && !ASC->HasMatchingGameplayTag(DeadTag))
+		{
+			ASC->AddLooseGameplayTag(DeadTag);
+			UE_LOG(LogTemp, Log, TEXT("[MRPG] %s entered lethal state (Health=%.1f)"), *GetNameSafe(ASC->GetAvatarActor()), GetHealth());
+		}
+
+		if (RagdollTag.IsValid() && !ASC->HasMatchingGameplayTag(RagdollTag))
+		{
+			ASC->AddLooseGameplayTag(RagdollTag);
+		}
 	}
 	else
 	{
-		// Alive: guarantee the dead state is cleared (revive / non-lethal damage).
-		ASC->RemoveLooseGameplayTag(DeadTag);
+		// Revived / healed above zero. Clear the death tags.
+		if (DeadTag.IsValid() && ASC->HasMatchingGameplayTag(DeadTag))
+		{
+			ASC->RemoveLooseGameplayTag(DeadTag);
+			UE_LOG(LogTemp, Log, TEXT("[MRPG] %s revived (Health=%.1f)"), *GetNameSafe(ASC->GetAvatarActor()), GetHealth());
+		}
+
+		if (RagdollTag.IsValid() && ASC->HasMatchingGameplayTag(RagdollTag))
+		{
+			ASC->RemoveLooseGameplayTag(RagdollTag);
+		}
 	}
 }
 
@@ -225,4 +287,44 @@ void UMRPGAttributeSet::OnRep_Experience(const FGameplayAttributeData& OldValue)
 void UMRPGAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, CharacterLevel, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_Hunger(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, Hunger, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_MaxHunger(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, MaxHunger, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_Thirst(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, Thirst, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_MaxThirst(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, MaxThirst, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_HealthRegenRate(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, HealthRegenRate, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_StaminaRegenRate(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, StaminaRegenRate, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_CritChance(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, CritChance, OldValue);
+}
+
+void UMRPGAttributeSet::OnRep_Karma(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMRPGAttributeSet, Karma, OldValue);
 }

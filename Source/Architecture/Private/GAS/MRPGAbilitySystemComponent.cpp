@@ -130,8 +130,16 @@ void UMRPGAbilitySystemComponent::InitFromCharacterDataAsset(const UCharacterDat
 	AddBaselineModifier(UMRPGAttributeSet::GetManaAttribute(), InDataAsset->MaxMana);
 	AddBaselineModifier(UMRPGAttributeSet::GetMaxStaminaAttribute(), InDataAsset->MaxStamina);
 	AddBaselineModifier(UMRPGAttributeSet::GetStaminaAttribute(), InDataAsset->MaxStamina);
+	AddBaselineModifier(UMRPGAttributeSet::GetMaxHungerAttribute(), InDataAsset->MaxHunger);
+	AddBaselineModifier(UMRPGAttributeSet::GetHungerAttribute(), InDataAsset->MaxHunger);
+	AddBaselineModifier(UMRPGAttributeSet::GetMaxThirstAttribute(), InDataAsset->MaxThirst);
+	AddBaselineModifier(UMRPGAttributeSet::GetThirstAttribute(), InDataAsset->MaxThirst);
+	AddBaselineModifier(UMRPGAttributeSet::GetHealthRegenRateAttribute(), InDataAsset->HealthRegenRate);
+	AddBaselineModifier(UMRPGAttributeSet::GetStaminaRegenRateAttribute(), InDataAsset->StaminaRegenRate);
 	AddBaselineModifier(UMRPGAttributeSet::GetArmorAttribute(), InDataAsset->Armor);
 	AddBaselineModifier(UMRPGAttributeSet::GetDamageAttribute(), InDataAsset->BaseDamage);
+	AddBaselineModifier(UMRPGAttributeSet::GetCritChanceAttribute(), InDataAsset->CritChance);
+	AddBaselineModifier(UMRPGAttributeSet::GetKarmaAttribute(), InDataAsset->StartingKarma);
 	AddBaselineModifier(UMRPGAttributeSet::GetCharacterLevelAttribute(), static_cast<float>(InDataAsset->StartingLevel));
 
 	FGameplayEffectSpec BaselineSpec(BaselineEffect, MakeEffectContext(), 1.0f);

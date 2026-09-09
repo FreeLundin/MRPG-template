@@ -32,14 +32,32 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Vitals")
 	float MaxMana;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Survival")
+	float MaxHunger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Survival")
+	float MaxThirst;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Vitals")
+	float HealthRegenRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Vitals")
+	float StaminaRegenRate;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Combat")
 	float Armor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Combat")
 	float BaseDamage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Combat")
+	float CritChance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Progression")
 	int32 StartingLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Progression")
+	float StartingKarma;
 
 	// --- Locomotion (consumed by Mover2 locomotion profiles) ---
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MRPG|Locomotion")
