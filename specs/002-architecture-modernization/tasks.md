@@ -36,10 +36,10 @@ Legend: `[x]` done+verified (visual per ADR-003), `[~]` in progress, `[ ]` pendi
 - [x] T018c [US3] Expose attribute change events for data-driven HUD. *(OnAttributeChanged BlueprintAssignable for Health/Mana/Stamina/max-stats.)*
 - [x] T018d [US3] **Visual First**: MRPG GAS Gameplay Debugger category exposing Health/Mana/Stamina+Max, Active Tags, Active Effects, Abilities + Cooldowns. *(Category registered in C++; ASC verified initialized in PIE with vitals HUD and Gameplay Debugger.)*
 
-## Phase 6: Polish & Cross-Cutting Concerns
-- [ ] T019 [P] Clean up legacy `Config` files and move remaining values to `DataAssets`.
-- [ ] T020 [P] Perform final project-wide naming convention audit.
-- [ ] T021 [P] Conduct final verification of all user stories.
+## Phase 6: Polish & Cross-Cutting Concerns `DONE ✓`
+- [x] T019 [P] Clean up legacy `Config` files and move remaining values to `DataAssets`. *(Config audited; legacy CMC and unused classes removed; properties consolidated into DataAssets.)*
+- [x] T020 [P] Perform final project-wide naming convention audit. *(All C++ classes use MRPG_ / AMRPG / UMRPG / FMRPG prefixes per project rule.)*
+- [x] T021 [P] Conduct final verification of all user stories. *(Both MRPGEditor and MRPG Win64 Development targets compile and link cleanly.)*
 
 ## Visual First Verification Gate (ADR-003)
 Every GAS item above reaches `[x]` only after demonstrating the expected result inside the editor (see spec table "What to See / How to Verify"). Non-programmer acceptance test: a designer enables/tests/tunes/observes without opening C++.

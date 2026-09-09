@@ -62,3 +62,4 @@ public:
 	UFUNCTION(BlueprintPure, Category = "MRPG|AI")
 	float GetAttackRange() const;
 };
+
