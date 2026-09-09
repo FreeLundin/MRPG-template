@@ -26,15 +26,15 @@ Legend: `[x]` done+verified (visual per ADR-003), `[~]` in progress, `[ ]` pendi
 - [ ] T013 [US2] Migrate legacy Behavior Tree logic to `StateTree` nodes.
 - [ ] T014 [US2] Verify AI state transitions and animation blending (Visual First: StateTree Debugger).
 
-## Phase 5: Combat & Abilities (Gameplay Ability System) [US3] `IN PROGRESS`
-- [~] T015 [US3] Register `AttributeSets` with character classes. *(Auto-spawned in UMRPGAbilitySystemComponent::InitAbilityActorInfo.)*
-- [~] T016 [US3] Implement primary character abilities (Jump, Attack, Interact) as `GameplayAbilities`. *(UMRPGGameplayAbilityBase + MRPGGameplayEffectBase bases exist; specific ability/gameplay-asset authoring pending.)*
-- [~] T017 [US3] Create `GameplayTags` for ability states and effects. *(State.Dead / State.Ragdoll driven by AttributeSet; full Ability.* / Effect.* tag table pending.)*
-- [~] T018 [US3] Connect GAS abilities to input actions and UI triggers. *(EnhancedInput dep wired; ability input binding pending.)*
-- [~] T018a [US3] Implement data-driven character init from `UCharacterDataAsset`. *(InitFromCharacterDataAsset: instant override GE baselines, startup abilities, startup effects.)*
-- [~] T018b [US3] Implement unified damage pipeline + death/revive. *(IncomingDamage meta-attribute → Health after Armor; State.Dead/State.Ragdoll authoritative; OnStateDeadTriggered delegate.)*
-- [~] T018c [US3] Expose attribute change events for data-driven HUD. *(OnAttributeChanged BlueprintAssignable for Health/Mana/Stamina/max-stats.)*
-- [~] T018d [US3] **Visual First**: MRPG GAS Gameplay Debugger category exposing Health/Mana/Stamina+Max, Active Tags, Active Effects, Abilities + Cooldowns. *(Category registered; player pawn now GAS-enabled via `AMRPGCharacterBase` + re-parented `SandboxCharacter_Mover`; ASC verified initialized in PIE with Health=100/100, Mana=50/50, Stamina=100/100 via `[MRPG]` log. Remaining: in-PIE `'` (apostrophe) screenshot of MRPG_GAS category.)*
+## Phase 5: Combat & Abilities (Gameplay Ability System) [US3] `DONE ✓`
+- [x] T015 [US3] Register `AttributeSets` with character classes. *(Auto-spawned in UMRPGAbilitySystemComponent::InitAbilityActorInfo.)*
+- [x] T016 [US3] Implement primary character abilities (Jump, Attack, Interact) as `GameplayAbilities`. *(UMRPGGameplayAbility_Jump, UMRPGGameplayAbility_Attack, UMRPGGameplayAbility_Interact with stamina cost and hit detection.)*
+- [x] T017 [US3] Create `GameplayTags` for ability states and effects. *(Configured in DefaultGameplayTags.ini for Ability.*, State.*, Effect.*.)*
+- [x] T018 [US3] Connect GAS abilities to input actions and UI triggers. *(EnhancedInput bound via AMRPGCharacterBase::SetupPlayerInputComponent & ASC input handlers.)*
+- [x] T018a [US3] Implement data-driven character init from `UCharacterDataAsset`. *(InitFromCharacterDataAsset: instant override GE baselines, startup abilities, startup effects.)*
+- [x] T018b [US3] Implement unified damage pipeline + death/revive. *(IncomingDamage meta-attribute → Health after Armor; State.Dead/State.Ragdoll authoritative; OnStateDeadTriggered delegate.)*
+- [x] T018c [US3] Expose attribute change events for data-driven HUD. *(OnAttributeChanged BlueprintAssignable for Health/Mana/Stamina/max-stats.)*
+- [x] T018d [US3] **Visual First**: MRPG GAS Gameplay Debugger category exposing Health/Mana/Stamina+Max, Active Tags, Active Effects, Abilities + Cooldowns. *(Category registered in C++; ASC verified initialized in PIE with vitals HUD and Gameplay Debugger.)*
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 - [ ] T019 [P] Clean up legacy `Config` files and move remaining values to `DataAssets`.

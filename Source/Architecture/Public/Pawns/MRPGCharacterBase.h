@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "GameplayTagContainer.h"
 #include "MRPGCharacterBase.generated.h"
 
 class UMRPGAbilitySystemComponent;
@@ -58,6 +59,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
 	UMRPGAbilitySystemComponent* GetMRPGAbilitySystemComponent() const;
 
+	// --- Gameplay Ability Callbacks / Virtual Hooks for Blueprints ---
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "MRPG|Actions")
+	void OnAbilityJump();
+	virtual void OnAbilityJump_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "MRPG|Actions")
+	void OnAbilityStopJumping();
+	virtual void OnAbilityStopJumping_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "MRPG|Actions")
+	void OnAbilityAttack();
+	virtual void OnAbilityAttack_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "MRPG|Actions")
+	void OnAbilityInteract();
+	virtual void OnAbilityInteract_Implementation();
+
+	/** Binds granted GAS abilities to Enhanced Input actions on the player. */
+	virtual void BindAbilityInputs(class UEnhancedInputComponent* EnhancedInputComponent);
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	void HandleAbilityInputStarted(FGameplayTag AbilityTag);
+	void HandleAbilityInputCompleted(FGameplayTag AbilityTag);
 };

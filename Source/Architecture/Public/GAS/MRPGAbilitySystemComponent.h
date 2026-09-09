@@ -96,6 +96,32 @@ public:
 	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UMRPGGameplayAbilityBase> AbilityClass);
 
 	/**
+	 * Applies an instant stamina cost/drain to the character via GAS.
+	 *
+	 * @param StaminaCost  Amount of stamina to deduct.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	void ApplyStaminaDrain(float StaminaCost);
+
+	/**
+	 * Activates abilities associated with an input tag when input is pressed.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	void AbilityInputTagPressed(const FGameplayTag& InputTag);
+
+	/**
+	 * Handles input release for active abilities associated with an input tag.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
+
+	/**
+	 * Attempts to activate any granted ability matching the specified GameplayTag.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "MRPG|GAS")
+	bool TryActivateAbilityByTag(const FGameplayTag& AbilityTag);
+
+	/**
 	 * Broadcast whenever the owner enters the dead state (State.Dead tag turns
 	 * active). Bind a Blueprint event to drive the ragdoll/death reaction so
 	 * lethality is entirely game-data (GAS) driven rather than scripted.

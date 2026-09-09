@@ -1,6 +1,9 @@
 #include "Pawns/MRPGCharacterBase.h"
 #include "GAS/MRPGAbilitySystemComponent.h"
+#include "GAS/MRPGGameplayAbilityBase.h"
 #include "DataAssets/CharacterDataAssets/CharacterDataAsset.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 
 AMRPGCharacterBase::AMRPGCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -42,3 +45,83 @@ UMRPGAbilitySystemComponent* AMRPGCharacterBase::GetMRPGAbilitySystemComponent()
 {
 	return MRPGAbilitySystemComponent;
 }
+
+void AMRPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		BindAbilityInputs(EnhancedInputComponent);
+	}
+}
+
+void AMRPGCharacterBase::BindAbilityInputs(UEnhancedInputComponent* EnhancedInputComponent)
+{
+	if (!EnhancedInputComponent || !MRPGAbilitySystemComponent)
+	{
+		return;
+	}
+
+	for (const FGameplayAbilitySpec& Spec : MRPGAbilitySystemComponent->GetActivatableAbilities())
+	{
+		if (const UMRPGGameplayAbilityBase* Ability = Cast<UMRPGGameplayAbilityBase>(Spec.Ability))
+		{
+			if (Ability->InputAction && Ability->ActivationTag.IsValid())
+			{
+				EnhancedInputComponent->BindAction(
+					Ability->InputAction,
+					ETriggerEvent::Started,
+					this,
+					&AMRPGCharacterBase::HandleAbilityInputStarted,
+					Ability->ActivationTag
+				);
+
+				EnhancedInputComponent->BindAction(
+					Ability->InputAction,
+					ETriggerEvent::Completed,
+					this,
+					&AMRPGCharacterBase::HandleAbilityInputCompleted,
+					Ability->ActivationTag
+				);
+			}
+		}
+	}
+}
+
+void AMRPGCharacterBase::HandleAbilityInputStarted(FGameplayTag AbilityTag)
+{
+	if (MRPGAbilitySystemComponent)
+	{
+		MRPGAbilitySystemComponent->AbilityInputTagPressed(AbilityTag);
+	}
+}
+
+void AMRPGCharacterBase::HandleAbilityInputCompleted(FGameplayTag AbilityTag)
+{
+	if (MRPGAbilitySystemComponent)
+	{
+		MRPGAbilitySystemComponent->AbilityInputTagReleased(AbilityTag);
+	}
+}
+
+void AMRPGCharacterBase::OnAbilityJump_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] %s OnAbilityJump"), *GetName());
+}
+
+void AMRPGCharacterBase::OnAbilityStopJumping_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] %s OnAbilityStopJumping"), *GetName());
+}
+
+void AMRPGCharacterBase::OnAbilityAttack_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] %s OnAbilityAttack"), *GetName());
+}
+
+void AMRPGCharacterBase::OnAbilityInteract_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("[MRPG] %s OnAbilityInteract"), *GetName());
+}
+

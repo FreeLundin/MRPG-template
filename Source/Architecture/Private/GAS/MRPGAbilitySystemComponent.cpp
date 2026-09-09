@@ -161,6 +161,85 @@ void UMRPGAbilitySystemComponent::ApplyStartupEffects(const TArray<TSubclassOf<U
 	}
 }
 
+void UMRPGAbilitySystemComponent::ApplyStaminaDrain(float StaminaCost)
+{
+	if (StaminaCost <= 0.0f)
+	{
+		return;
+	}
+
+	UGameplayEffect* StaminaEffect = NewObject<UGameplayEffect>(GetTransientPackage(), TEXT("DynamicStaminaDrain"), RF_Transient);
+	StaminaEffect->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	FGameplayModifierInfo& Modifier = StaminaEffect->Modifiers.AddDefaulted_GetRef();
+	Modifier.Attribute = UMRPGAttributeSet::GetStaminaAttribute();
+	Modifier.ModifierOp = EGameplayModOp::Additive;
+	Modifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(FScalableFloat(-StaminaCost));
+
+	FGameplayEffectContextHandle Context = MakeEffectContext();
+	FGameplayEffectSpec Spec(StaminaEffect, Context, 1.0f);
+	ApplyGameplayEffectSpecToSelf(Spec);
+}
+
+void UMRPGAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (const UMRPGGameplayAbilityBase* MRPGAbility = Cast<UMRPGGameplayAbilityBase>(Spec.Ability))
+		{
+			if (MRPGAbility->ActivationTag.MatchesTagExact(InputTag))
+			{
+				TryActivateAbility(Spec.Handle);
+			}
+		}
+	}
+}
+
+void UMRPGAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (const UMRPGGameplayAbilityBase* MRPGAbility = Cast<UMRPGGameplayAbilityBase>(Spec.Ability))
+		{
+			if (MRPGAbility->ActivationTag.MatchesTagExact(InputTag))
+			{
+				AbilitySpecInputReleased(Spec);
+			}
+		}
+	}
+}
+
+bool UMRPGAbilitySystemComponent::TryActivateAbilityByTag(const FGameplayTag& AbilityTag)
+{
+	if (!AbilityTag.IsValid())
+	{
+		return false;
+	}
+
+	bool bSuccess = false;
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (const UMRPGGameplayAbilityBase* MRPGAbility = Cast<UMRPGGameplayAbilityBase>(Spec.Ability))
+		{
+			if (MRPGAbility->ActivationTag.MatchesTagExact(AbilityTag))
+			{
+				bSuccess |= TryActivateAbility(Spec.Handle);
+			}
+		}
+	}
+	return bSuccess;
+}
+
 void UMRPGAbilitySystemComponent::OnTagUpdated(const FGameplayTag& Tag, bool TagExists)
 {
 	Super::OnTagUpdated(Tag, TagExists);
@@ -178,3 +257,4 @@ void UMRPGAbilitySystemComponent::OnTagUpdated(const FGameplayTag& Tag, bool Tag
 		}
 	}
 }
+
